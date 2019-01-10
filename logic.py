@@ -72,6 +72,9 @@ class Board:
 
     played_spaces = np.asarray([[""]*size]*size)
 
+    def get_played_spaces( self ):
+        return self.played_spaces.tolist()
+
 
     def find_word( self, letters ):
         half_size = int((self.size-1)*.5)
@@ -332,91 +335,94 @@ class Board:
         return total_word_score, test_board, constructed_main_word
 
 
+def main():
+    b = Board()
+    # b.play_word( "dog", 0, 0, RIGHT )
+    # b.play_word( "is" , 3,-1, DOWN  )
+    # b.play_word( "lanai", -1, -1, RIGHT )
+    # b.play_word( "shames", 0,1, RIGHT )
+    # b.play_word( "fascine", 5,-1, DOWN )
+    # b.play_word( "gazal", -4,-2, RIGHT )
+    # b.play_word( "jaga", 2,-2, DOWN )
+    # b.play_word( "born", 4,3, DOWN )
+    # b.play_word( "rax", 6,-2, DOWN )
+    # b.play_word( "auf", -5,-3, RIGHT )
+    # b.play_word( "dev", 7,-1, DOWN )
+    # b.play_word( "tatt", -7,-4, RIGHT )
+    # b.play_word( "hoed", 6,2, DOWN )
+    # b.play_word( "punce", 0,7, RIGHT )
+    # b.play_word( "twite", -7,-7, DOWN )
+    # b.play_word( "womb", -7,-6, RIGHT )
+    # b.play_word( "egoism", 3,-4, DOWN )
+    # b.play_word( "quern", 1, -4, RIGHT )
+    # b.play_word( "ofter", -4,-7, RIGHT )
+    # b.play_word( "ide", -7,-5, RIGHT )
+    # b.play_word( "kyes", 6, -7, DOWN )
+    # b.play_word( "trike", 3, -7, RIGHT )
+    # b.play_word( "prow", 4, -5, DOWN )
+    # b.play_word( "chi", 5,2, RIGHT )
+    # b.play_word( "fy", -3,-7, DOWN )
+    # b.play_word( "peel", 4,-5, RIGHT )
+    # b.play_word( "iron", -2,6, RIGHT )
+    # b.play_word( "qi", 1, -4, DOWN )
+    # b.play_word( "ired", 3,5, RIGHT )
+    # b.play_word( "luv", 2,3, DOWN )
+    #b.find_word( "aaineln" )
+    #b.find_word( "hssaema" )
+    #b.find_word( "ienfcar" )
+    #b.find_word( "algnrza" )
+    #b.find_word( "rdxtjgt")
+    #b.find_word( "nrtttob" )
+    #b.find_word( "rdxttga" )
+    #b.find_word( "tttfaua" )
+    #b.find_word( "dttghev" )
+    #b.find_word( "ttanut" )
+    #b.find_word( "ttghode" )
+    #b.find_word( "nutcpeb" )
+    #b.find_word( "tgteewi" )
+    #b.find_word( "abcdefghijklmnopqrstuvwxyz")
+    #b.find_word( "tbmnrou" )
+    #b.find_word( "rgteeok" )
+    #b.find_word( "tnruqrd" )
+    #b.find_word( "ftrkoye" )
+    #b.find_word( "trdlvel" )
+    #b.find_word( "kywsroe" )
+    #b.find_word( "trlvlie" )
+    #b.find_word( "wropiin" )
+    #b.find_word( "lvliuei" )
+    #b.find_word( "riinoyi" )
+    #b.find_word( "lvluei" )
+    #b.find_word( "riinoi" )
+    #b.find_word( "vlui" )
+    #b.find_word( "ii" )
+    #b.find_word( "vlu" )
+    # b.find_word( "i" )
 
-b = Board()
-# b.play_word( "dog", 0, 0, RIGHT )
-# b.play_word( "is" , 3,-1, DOWN  )
-# b.play_word( "lanai", -1, -1, RIGHT )
-# b.play_word( "shames", 0,1, RIGHT )
-# b.play_word( "fascine", 5,-1, DOWN )
-# b.play_word( "gazal", -4,-2, RIGHT )
-# b.play_word( "jaga", 2,-2, DOWN )
-# b.play_word( "born", 4,3, DOWN )
-# b.play_word( "rax", 6,-2, DOWN )
-# b.play_word( "auf", -5,-3, RIGHT )
-# b.play_word( "dev", 7,-1, DOWN )
-# b.play_word( "tatt", -7,-4, RIGHT )
-# b.play_word( "hoed", 6,2, DOWN )
-# b.play_word( "punce", 0,7, RIGHT )
-# b.play_word( "twite", -7,-7, DOWN )
-# b.play_word( "womb", -7,-6, RIGHT )
-# b.play_word( "egoism", 3,-4, DOWN )
-# b.play_word( "quern", 1, -4, RIGHT )
-# b.play_word( "ofter", -4,-7, RIGHT )
-# b.play_word( "ide", -7,-5, RIGHT )
-# b.play_word( "kyes", 6, -7, DOWN )
-# b.play_word( "trike", 3, -7, RIGHT )
-# b.play_word( "prow", 4, -5, DOWN )
-# b.play_word( "chi", 5,2, RIGHT )
-# b.play_word( "fy", -3,-7, DOWN )
-# b.play_word( "peel", 4,-5, RIGHT )
-# b.play_word( "iron", -2,6, RIGHT )
-# b.play_word( "qi", 1, -4, DOWN )
-# b.play_word( "ired", 3,5, RIGHT )
-# b.play_word( "luv", 2,3, DOWN )
-#b.find_word( "aaineln" )
-#b.find_word( "hssaema" )
-#b.find_word( "ienfcar" )
-#b.find_word( "algnrza" )
-#b.find_word( "rdxtjgt")
-#b.find_word( "nrtttob" )
-#b.find_word( "rdxttga" )
-#b.find_word( "tttfaua" )
-#b.find_word( "dttghev" )
-#b.find_word( "ttanut" )
-#b.find_word( "ttghode" )
-#b.find_word( "nutcpeb" )
-#b.find_word( "tgteewi" )
-#b.find_word( "abcdefghijklmnopqrstuvwxyz")
-#b.find_word( "tbmnrou" )
-#b.find_word( "rgteeok" )
-#b.find_word( "tnruqrd" )
-#b.find_word( "ftrkoye" )
-#b.find_word( "trdlvel" )
-#b.find_word( "kywsroe" )
-#b.find_word( "trlvlie" )
-#b.find_word( "wropiin" )
-#b.find_word( "lvliuei" )
-#b.find_word( "riinoyi" )
-#b.find_word( "lvluei" )
-#b.find_word( "riinoi" )
-#b.find_word( "vlui" )
-#b.find_word( "ii" )
-#b.find_word( "vlu" )
-# b.find_word( "i" )
+    b.play_word( "touzy", 0, 0, RIGHT, "comp" ) #comp
+    b.play_word( "oy", 0, 1, RIGHT, "Josh" ) #Joshua
+    b.play_word( "zenith", 3, 0, DOWN, "Jessica" ) #Jessica
+    b.play_word( "hit", 3, 5, RIGHT, "Hannah" ) #Hannah
+    b.play_word( "diether", 0, 4, RIGHT, "comp" )#comp
+    b.play_word( "rails", 7, 0, DOWN, "Josh" ) #josh
+    b.play_word( "duet", 0, 4, DOWN, "Jessica" ) #Jessica
+    b.play_word( "nurse", -4, 2, RIGHT, "Hannah"  ) #hannah
+    b.play_word( "loricae", -6,6, RIGHT, "comp" ) #comp
+    b.play_word( "qi", 6, 2, RIGHT, "Josh" ) #Josh
+    b.play_word( "xi", -7, 7, RIGHT, "Jessica" ) # Jessica
+    b.play_word( "coned", -4, 0, DOWN, "Hannah" ) #hannah
+    b.play_word( "finca", -7, 0, RIGHT, "comp" ) #comp
+    b.play_word( "os", 2, 6, RIGHT, "Josh" ) #Josh
+    b.play_word( "mingy", 4, -4, DOWN, "Jessica" ) #Jessica
+    b.play_word( "joy", 1,-1,DOWN, "Hannah" ) #hannah
+    b.play_word( "befog", 3, -7, DOWN, "comp" ) #comp
+    b.play_word( "breve", 3, -7, RIGHT, "Josh" ) #Josh
+    b.play_word( "bang", -5, -2, DOWN, "Jessica" )
+    b.play_word( "wop", 2, -6, DOWN, "Hannah" )
 
-b.play_word( "touzy", 0, 0, RIGHT, "comp" ) #comp
-b.play_word( "oy", 0, 1, RIGHT, "Josh" ) #Joshua
-b.play_word( "zenith", 3, 0, DOWN, "Jessica" ) #Jessica
-b.play_word( "hit", 3, 5, RIGHT, "Hannah" ) #Hannah
-b.play_word( "diether", 0, 4, RIGHT, "comp" )#comp
-b.play_word( "rails", 7, 0, DOWN, "Josh" ) #josh
-b.play_word( "duet", 0, 4, DOWN, "Jessica" ) #Jessica
-b.play_word( "nurse", -4, 2, RIGHT, "Hannah"  ) #hannah
-b.play_word( "loricae", -6,6, RIGHT, "comp" ) #comp
-b.play_word( "qi", 6, 2, RIGHT, "Josh" ) #Josh
-b.play_word( "xi", -7, 7, RIGHT, "Jessica" ) # Jessica
-b.play_word( "coned", -4, 0, DOWN, "Hannah" ) #hannah
-b.play_word( "finca", -7, 0, RIGHT, "comp" ) #comp
-b.play_word( "os", 2, 6, RIGHT, "Josh" ) #Josh
-b.play_word( "mingy", 4, -4, DOWN, "Jessica" ) #Jessica
-b.play_word( "joy", 1,-1,DOWN, "Hannah" ) #hannah
-b.play_word( "befog", 3, -7, DOWN, "comp" ) #comp
-b.play_word( "breve", 3, -7, RIGHT, "Josh" ) #Josh
-b.play_word( "bang", -5, -2, DOWN, "Jessica" )
-b.play_word( "wop", 2, -6, DOWN, "Hannah" )
+    #b.find_word( "ouelfgb" )
+    #b.find_word( "bagoark" )
+    #b.find_word("aoedpiw")
+    b.find_word( "ulmtpan")
 
-#b.find_word( "ouelfgb" )
-#b.find_word( "bagoark" )
-#b.find_word("aoedpiw")
-b.find_word( "ulmtpan")
+if __name__ == "__main__":
+    main()
