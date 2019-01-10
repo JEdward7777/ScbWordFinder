@@ -37,7 +37,8 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
 
     async def on_message(self, message):
         print(u"You said: " + message)
-        self.write_message( json.dumps( [ "placed_letters",  b.get_played_spaces() ] ) )
+        self.write_message( json.dumps( [ "played_spaces",  b.get_played_spaces() ] ) )
+        self.write_message( json.dumps( [ "special_squares", b.special_squares ] ) )
         
 
         # #computed = await AbstractEventLoop.run_in_executor(None, long_compute, None)

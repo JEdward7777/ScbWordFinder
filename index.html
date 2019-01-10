@@ -11,41 +11,72 @@
 //   ctx.canvas.width  = window.innerWidth;
 //   ctx.canvas.height = window.innerHeight;
 var size = 15;
-var played_spaces = [[""]*size]*size
+var played_spaces = null;
+var special_squares = null;
 
 function sketchProc(processing) {
+    var p = processing;
+    var font = p.loadFont("FFScala.ttf");
     processing.setup = function(){
         processing.size( 600, 600 );
+        p.textFont(font); 
+        p.textSize( 30 );
+        p.textAlign(p.CENTER, p.CENTER);
     }
    // Override draw function, by default it will be called 60 times per second
    processing.draw = function() {
      // determine center and max clock arm length
-     var centerX = processing.width / 2, centerY = processing.height / 2;
-     var maxArmLength = Math.min(centerX, centerY);
- 
-     function drawArm(position, lengthScale, weight) {
-       processing.strokeWeight(weight);
-       processing.line(centerX, centerY,
-         centerX + Math.sin(position * 2 * Math.PI) * lengthScale * maxArmLength,
-         centerY - Math.cos(position * 2 * Math.PI) * lengthScale * maxArmLength);
-     }
- 
+     var centerX = p.width / 2, centerY = p.height / 2;
+
      // erase background
-     processing.background(224);
- 
-     var now = new Date();
- 
-     // Moving hours arm by small increments
-     var hoursPosition = (now.getHours() % 12 + now.getMinutes() / 60) / 12;
-     drawArm(hoursPosition, 0.5, 5);
- 
-     // Moving minutes arm by small increments
-     var minutesPosition = (now.getMinutes() + now.getSeconds() / 60) / 60;
-     drawArm(minutesPosition, 0.80, 3);
- 
-     // Moving hour arm by second increments
-     var secondsPosition = now.getSeconds() / 60;
-     drawArm(secondsPosition, 0.90, 1);
+     p.background(255);
+
+     //draw special squars
+     p.noStroke();
+     if( special_squares != null ){
+        for( var x = 0; x < size; ++x ){
+            for( var y = 0; y < size; ++y ){
+                var skip_draw = false;
+                if( special_squares[y][x] == "dl" ){
+                    p.fill(0, 102, 255)
+                }else if( special_squares[y][x] == "tl" ){
+                    p.fill(0, 204, 0);
+                }else if( special_squares[y][x] == "dw" ){
+                    p.fill( 255, 0, 0 );
+                }else if( special_squares[y][x] == "tw" ){
+                    p.fill( 255, 153, 0 );
+                }else if( special_squares[y][x] == "s" ){
+                    p.fill( 51, 204, 255 );
+                }else{
+                    skip_draw = true;
+                }
+                if( !skip_draw ) p.rect(x/size*(p.width-2)+1, y/size*(p.height-2)+1, 1/size*(p.width-2), 1/size*(p.height-2));
+            
+            }
+        }
+     }
+    
+    //draw the board lines.
+    p.strokeWeight(1);
+    p.stroke(0);
+    for( var i = 0; i <= size; ++i ){
+        p.line( i/size*(p.width-2)+1, 1, i/size*(p.width-2)+1, p.height-1 );
+        p.line( 1, i/size*(p.height-2)+1, p.width-1, i/size*(p.height-2)+1  );
+    }
+
+    if( played_spaces != null ){
+        for( var x = 0; x < size; ++x ){
+            for( var y = 0; y < size; ++y ){
+                if( played_spaces[y][x] != "" ){
+                    p.fill(255);
+                    p.rect((x+.1)/size*(p.width-2)+1, (y+.1)/size*(p.height-2)+1, .8/size*(p.width-2), .8/size*(p.height-2), 7);
+                    p.fill(0, 102, 153);
+                    p.text( played_spaces[y][x].toUpperCase(), (x+.5)/size*(p.width-2), (y+.5)/size*(p.width-2) ); 
+                }
+            }
+        }
+    }
+
    };
 
    var ws = new WebSocket("ws://localhost:8888/ws");
@@ -55,9 +86,11 @@ function sketchProc(processing) {
     ws.onmessage = function (evt) {
         // alert(evt.data);
         var msg = JSON.parse( evt.data );
-        if( msg[0] == "placed_letters" ){
-            placed_letters = msg[1]
-            alert( "received board" );
+        if( msg[0] == "played_spaces" ){
+            played_spaces = msg[1];
+            //alert( "received board" );
+        }else if( msg[0] == "special_squares" ){
+            special_squares = msg[1];
         }else{
             alert( "msg of type " + msg[0] );
         }
