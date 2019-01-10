@@ -37,8 +37,16 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
 
     async def on_message(self, message):
         print(u"You said: " + message)
-        self.write_message( json.dumps( [ "played_spaces",  b.get_played_spaces() ] ) )
-        self.write_message( json.dumps( [ "special_squares", b.special_squares ] ) )
+        command = json.loads( message )
+        if command[0] == "play_word":
+            try:
+                b.play_word( command[1]["word"], int( command[1]["x"] ), int( command[1]["y"] ), int( command[1]["direction"] ) )
+            except Exception as ex:
+                self.write_message( json.dumps( ["alert", "Error: " + str(ex)]) )
+
+            self.write_message( json.dumps( [ "played_spaces",  b.get_played_spaces() ] ) )
+        else:
+            print( "Received command " + command[0] )
         
 
         # #computed = await AbstractEventLoop.run_in_executor(None, long_compute, None)
@@ -61,6 +69,9 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         if self not in cl:
             cl.append(self)
+
+        self.write_message( json.dumps( [ "played_spaces",  b.get_played_spaces() ] ) )
+        self.write_message( json.dumps( [ "special_squares", b.special_squares ] ) )
 
     def on_close(self):
         if self in cl:

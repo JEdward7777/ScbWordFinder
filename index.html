@@ -11,18 +11,32 @@
 //   ctx.canvas.width  = window.innerWidth;
 //   ctx.canvas.height = window.innerHeight;
 var size = 15;
+var RIGHT = 0
+var DOWN = 1
 var played_spaces = null;
 var special_squares = null;
+var mouse_board_x = 0;
+var mouse_board_y = 0;
 
 function sketchProc(processing) {
     var p = processing;
     var font = p.loadFont("FFScala.ttf");
+   var ws = new WebSocket("ws://localhost:8888/ws");
+
     processing.setup = function(){
         processing.size( 600, 600 );
         p.textFont(font); 
         p.textSize( 30 );
         p.textAlign(p.CENTER, p.CENTER);
     }
+  
+
+    processing.mouseClicked = function(){
+        var word_to_play = document.getElementById("word_input").value;
+        var going_down = document.getElementById("down_check").checked;
+        ws.send( JSON.stringify( [ "play_word", { "word": word_to_play, "x": mouse_board_x-(size-1)/2, "y": mouse_board_y-(size-1)/2, "direction": (going_down?DOWN:LEFT) } ] ) );
+    }
+
    // Override draw function, by default it will be called 60 times per second
    processing.draw = function() {
      // determine center and max clock arm length
@@ -77,11 +91,34 @@ function sketchProc(processing) {
         }
     }
 
+    //draw possible word
+    //find where the placed word is
+    mouse_board_x = Math.floor((p.mouseX-1)/(p.width-2)*size);
+    mouse_board_y = Math.floor((p.mouseY-1)/(p.height-2)*size);
+
+    var word_to_play = document.getElementById("word_input").value;
+    var going_down = document.getElementById("down_check").checked;
+
+    //now try and draw it there.
+    for( var i = 0; i < word_to_play.length; ++i ){
+        var x = mouse_board_x;
+        var y = mouse_board_y;
+        if( going_down ){
+            y += i;
+        }else{
+            x += i;
+        }
+        p.fill(155);
+        p.rect((x+.1)/size*(p.width-2)+1, (y+.1)/size*(p.height-2)+1, .8/size*(p.width-2), .8/size*(p.height-2), 7);
+        p.fill(0, 102, 153);
+        p.text( word_to_play[i].toUpperCase(), (x+.5)/size*(p.width-2), (y+.5)/size*(p.width-2) ); 
+    }
+
+
    };
 
-   var ws = new WebSocket("ws://localhost:8888/ws");
     ws.onopen = function() {
-        ws.send("Hello, world");
+        //ws.send("Hello, world");
     };
     ws.onmessage = function (evt) {
         // alert(evt.data);
@@ -91,6 +128,8 @@ function sketchProc(processing) {
             //alert( "received board" );
         }else if( msg[0] == "special_squares" ){
             special_squares = msg[1];
+        }else if( msg[0] == "alert" ){
+            alert( msg[1] );
         }else{
             alert( "msg of type " + msg[0] );
         }
@@ -101,8 +140,15 @@ function sketchProc(processing) {
  // attaching the sketchProc function to the canvas
  var processingInstance = new Processing(canvas, sketchProc);
 
+function myFunction(){
+    alert( "Your text box has " + document.getElementById("word_input").value + "\n" +
+      "The down button is " + document.getElementById("down_check").checked );
+}
+
 </script>
-   
 
-
+<br>
+Word: <input id="word_input" type="text"><br>
+Down: <input id="down_check" type="checkbox" value="Down"><br>
+<button onclick="myFunction()">Click me</button> 
 </html>
