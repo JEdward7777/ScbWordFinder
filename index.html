@@ -18,10 +18,13 @@ var special_squares = null;
 var mouse_board_x = 0;
 var mouse_board_y = 0;
 
+var ws = new WebSocket("ws://localhost:8888/ws");
+var found_words = [];
+var preview_word = null;
+
 function sketchProc(processing) {
     var p = processing;
     var font = p.loadFont("FFScala.ttf");
-   var ws = new WebSocket("ws://localhost:8888/ws");
 
     processing.setup = function(){
         processing.size( 600, 600 );
@@ -34,7 +37,8 @@ function sketchProc(processing) {
     processing.mouseClicked = function(){
         var word_to_play = document.getElementById("word_input").value;
         var going_down = document.getElementById("down_check").checked;
-        ws.send( JSON.stringify( [ "play_word", { "word": word_to_play, "x": mouse_board_x-(size-1)/2, "y": mouse_board_y-(size-1)/2, "direction": (going_down?DOWN:LEFT) } ] ) );
+        play_word( { "word": word_to_play, "x": mouse_board_x-(size-1)/2, "y": mouse_board_y-(size-1)/2, "direction": (going_down?DOWN:RIGHT) } )
+        //ws.send( JSON.stringify( [ "play_word", { "word": word_to_play, "x": mouse_board_x-(size-1)/2, "y": mouse_board_y-(size-1)/2, "direction": (going_down?DOWN:RIGHT) } ] ) );
     }
 
    // Override draw function, by default it will be called 60 times per second
@@ -114,8 +118,24 @@ function sketchProc(processing) {
         p.text( word_to_play[i].toUpperCase(), (x+.5)/size*(p.width-2), (y+.5)/size*(p.width-2) ); 
     }
 
+    //try and draw preview word
+    if( preview_word != null ) for( var i = 0; i < preview_word.word.length; ++i ){
+        var x = preview_word.x+(size-1)/2;
+        var y = preview_word.y+(size-1)/2;
+        if( preview_word.direction == DOWN ){
+            y += i;
+        }else{
+            x += i;
+        }
+        p.fill(0, 204, 255);
+        p.rect((x+.1)/size*(p.width-2)+1, (y+.1)/size*(p.height-2)+1, .8/size*(p.width-2), .8/size*(p.height-2), 7);
+        p.fill(0, 102, 153);
+        p.text( preview_word.word.toUpperCase()[i], (x+.5)/size*(p.width-2), (y+.5)/size*(p.width-2) );        
+    }
 
    };
+
+    
 
     ws.onopen = function() {
         //ws.send("Hello, world");
@@ -125,11 +145,17 @@ function sketchProc(processing) {
         var msg = JSON.parse( evt.data );
         if( msg[0] == "played_spaces" ){
             played_spaces = msg[1];
-            //alert( "received board" );
         }else if( msg[0] == "special_squares" ){
             special_squares = msg[1];
         }else if( msg[0] == "alert" ){
             alert( msg[1] );
+        }else if( msg[0] == "log_message" ){
+            var log_div = document.getElementById("log_div");
+            log_div.innerHTML += msg[1] + "<br>";
+        }else if( msg[0] == "found_word" ){
+            found_words.push( msg[1] );            
+            found_words_div = document.getElementById("found_words_div");
+            found_words_div.innerHTML += "<button onmouseover='show_word( found_words[" + (found_words.length-1) + "] );' onclick='play_word( found_words[" + (found_words.length-1) + "] );'>Play " + msg[1]["word"] + " at " + msg[1]["x"] + "," + msg[1]["y"] + " " + ( msg[1]["direction"]==DOWN?"down":"right") + " for " + msg[1]["points"] + "</button><br>";
         }else{
             alert( "msg of type " + msg[0] );
         }
@@ -140,15 +166,40 @@ function sketchProc(processing) {
  // attaching the sketchProc function to the canvas
  var processingInstance = new Processing(canvas, sketchProc);
 
-function myFunction(){
-    alert( "Your text box has " + document.getElementById("word_input").value + "\n" +
-      "The down button is " + document.getElementById("down_check").checked );
+function find_word(){
+    var letters = document.getElementById("letters").value;
+    found_words_div = document.getElementById("found_words_div");
+    found_words_div.innerHTML = "";
+    var log_div = document.getElementById("log_div");
+    log_div.innerHTML = "";
+    found_words = [];
+    ws.send( JSON.stringify( [ "find_word", {"letters": letters } ] ) );
+}
+
+function play_word( word ){
+    ws.send( JSON.stringify( ["play_word", word ] ) );
+    preview_word = null;
+}
+function show_word( word ){
+    preview_word = word;
 }
 
 </script>
 
 <br>
+<hr>
+<h1>Play words</h1>
 Word: <input id="word_input" type="text"><br>
 Down: <input id="down_check" type="checkbox" value="Down"><br>
-<button onclick="myFunction()">Click me</button> 
+<hr>
+<h1>Find words</h1>
+letters: <input id="letters" type="text"><br>
+<button onclick="find_word()">go</button> 
+<div id="found_words_div">
+
+</div>
+<hr>
+<div id="log_div">
+
+</div>
 </html>

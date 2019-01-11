@@ -76,6 +76,88 @@ class Board:
         return self.played_spaces.tolist()
 
 
+    word_finder = None
+    word_finder_letters = None
+    def find_next_word( self, letters ):
+        if self.word_finder is None or self.word_finder_letters != letters:
+            self.word_finder_letters = letters
+            self.word_finder = self.find_word_gen( letters )
+
+        try:
+            next_find = next(self.word_finder)
+        except StopIteration:
+            next_find = None
+
+        return next_find
+
+
+    def find_word_gen( self, letters ):
+        half_size = int((self.size-1)*.5)
+
+        max_length_searched = [0]
+        best_score = [0]
+
+        print( "starting word search" )
+
+        min_x_played, min_y_played, max_x_played, max_y_played = 0,0,0,0
+        for x in range( -half_size, half_size+1 ):
+            for y in range( -half_size, half_size+1 ):
+                if self.played_spaces[y+half_size,x+half_size] != "":
+                    min_x_played = min( min_x_played, x )
+                    max_x_played = max( max_x_played, x )
+                    min_y_played = min( min_y_played, y )
+                    max_y_played = max( max_y_played, y )
+
+        def combo_letters( picked_letters, remaining_letters, length_test ):
+            if len( picked_letters ) > max_length_searched[0]:
+                max_length_searched[0] = len( picked_letters )
+                print( "searching using " + str(max_length_searched[0]) + " letters")
+                yield ["log_message", "searching using " + str(max_length_searched[0]) + " letters" ]
+            
+            if len( picked_letters ) == length_test:
+                for direction in [RIGHT,DOWN]:
+                    x_start = y_start = -half_size
+                    x_end   = y_end   =  half_size
+
+                    y_end   = min(  max_y_played+1, y_end )
+                    x_end   = min(  max_x_played+1, x_end )
+
+                    #trim the search dimensions down to where it could
+                    #possibly fit.
+                    if direction == RIGHT:
+                        x_start = max(  min_x_played-len(picked_letters), x_start )
+                        y_start = max(  min_y_played-1, y_start )
+                        x_end   = min(  half_size-len(picked_letters), x_end )
+                    else:
+                        x_start = max(  min_x_played-1, x_start )
+                        y_start = max(  min_y_played-len(picked_letters), y_start )
+                        y_end   = min(  half_size-len(picked_letters), y_end )
+                    
+
+                    for x in range( x_start, x_end+1 ):
+                        for y in range( y_start, y_end+1 ):
+                            try:
+                                test_score, _, test_word = self.test_word( picked_letters, x, y, direction, skipy=True )
+                                
+                                if test_score > best_score[0]:
+                                    print( "Found word " + test_word + " at " + str( x ) + "," + str( y ) + " going " + ("down" if direction == DOWN else "right" ) + " for " + str( test_score ) + " points" )
+                                    yield ["found_word", { "word": test_word, "x": x, "y": y, "direction": direction, "points":test_score  } ]
+                                    yield ["log_message", "Found word " + test_word + " at " + str( x ) + "," + str( y ) + " going " + ("down" if direction == DOWN else "right" ) + " for " + str( test_score ) + " points" ] 
+                                    best_score[0] = test_score
+                            except:
+                                pass     
+            elif len( picked_letters ) < length_test:
+                for letter_num in range( len( remaining_letters ) ):
+                    new_picked_letters = picked_letters + remaining_letters[letter_num]
+                    new_remaining_letters = remaining_letters[:letter_num] + remaining_letters[letter_num+1:]
+                    for result in combo_letters( new_picked_letters, new_remaining_letters, length_test ):
+                        yield result
+
+        for length_test in range( 1, len( letters )+1 ):
+            for result in combo_letters( "", letters, length_test ):
+                yield result
+
+            
     def find_word( self, letters ):
         half_size = int((self.size-1)*.5)
 
@@ -140,6 +222,7 @@ class Board:
     
 
     def play_word( self, word, x,y, direction, who="", skipy=False, speak=True ):
+        self.word_finder = None
         score, self.played_spaces, constructed_main_word = self.test_word( word, x, y, direction, skipy )
         if not who in self.scores:
             self.scores[who] = 0
