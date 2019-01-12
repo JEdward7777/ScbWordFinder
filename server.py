@@ -10,11 +10,11 @@ import logic
 
 cl = []
 b = logic.Board()
-b.play_word( "touzy", 0, 0, logic.RIGHT, "comp" ) #comp
-b.play_word( "oy", 0, 1, logic.RIGHT, "Josh" ) #Joshua
-b.play_word( "zenith", 3, 0, logic.DOWN, "Jessica" ) #Jessica
-b.play_word( "hit", 3, 5, logic.RIGHT, "Hannah" ) #Hannah
-b.play_word( "diether", 0, 4, logic.RIGHT, "comp" )#comp
+# b.play_word( "touzy", 0, 0, logic.RIGHT, "comp" ) #comp
+# b.play_word( "oy", 0, 1, logic.RIGHT, "Josh" ) #Joshua
+# b.play_word( "zenith", 3, 0, logic.DOWN, "Jessica" ) #Jessica
+# b.play_word( "hit", 3, 5, logic.RIGHT, "Hannah" ) #Hannah
+# b.play_word( "diether", 0, 4, logic.RIGHT, "comp" )#comp
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):

@@ -170,15 +170,18 @@ function find_word(){
     var letters = document.getElementById("letters").value;
     found_words_div = document.getElementById("found_words_div");
     found_words_div.innerHTML = "";
+    found_words = [];
     var log_div = document.getElementById("log_div");
     log_div.innerHTML = "";
-    found_words = [];
     ws.send( JSON.stringify( [ "find_word", {"letters": letters } ] ) );
 }
 
 function play_word( word ){
-    ws.send( JSON.stringify( ["play_word", word ] ) );
     preview_word = null;
+    ws.send( JSON.stringify( ["play_word", word ] ) );
+    found_words_div = document.getElementById("found_words_div");
+    found_words_div.innerHTML = "";
+    found_words = [];
 }
 function show_word( word ){
     preview_word = word;

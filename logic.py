@@ -157,6 +157,9 @@ class Board:
             for result in combo_letters( "", letters, length_test ):
                 yield result
 
+        yield ["log_message", "Done searching." ]
+        print( "Done searching" )
+
             
     def find_word( self, letters ):
         half_size = int((self.size-1)*.5)
