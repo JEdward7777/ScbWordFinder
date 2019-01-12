@@ -22,8 +22,8 @@ class MainHandler(tornado.web.RequestHandler):
 
 #pulling from https://github.com/hiroakis/tornado-websocket-example/blob/master/app.py
 class SocketHandler(tornado.websocket.WebSocketHandler):
-    # def check_origin(self, origin):
-    #     return True
+    def check_origin(self, origin):
+        return True
 
 
   # #computed = await AbstractEventLoop.run_in_executor(None, long_compute, None)
@@ -41,7 +41,19 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
         #     self.write_message( u"the result is " + str(value) )
         #     value = await tornado.ioloop.IOLoop.current().run_in_executor(None, g_user )
 
-    
+    word_finder = None
+    word_finder_letters = None
+    def find_next_word( self, letters ):
+        if self.word_finder is None or self.word_finder_letters != letters:
+            self.word_finder_letters = letters
+            self.word_finder = b.find_word_gen( letters )
+
+        try:
+            next_find = next(self.word_finder)
+        except StopIteration:
+            next_find = None
+
+        return next_find
 
 
     async def on_message(self, message):
@@ -57,10 +69,11 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
             for c in cl:
                 c.write_message( json.dumps( [ "played_spaces",  b.get_played_spaces() ] ) )
         elif command[0] == "find_word":
-            finding_result = await tornado.ioloop.IOLoop.current().run_in_executor(None,b.find_next_word, command[1]["letters"])
+            self.word_finder = None
+            finding_result = await tornado.ioloop.IOLoop.current().run_in_executor(None,self.find_next_word, command[1]["letters"])
             while finding_result is not None:
                 self.write_message( json.dumps( finding_result ) )
-                finding_result = await tornado.ioloop.IOLoop.current().run_in_executor(None,b.find_next_word, command[1]["letters"])
+                finding_result = await tornado.ioloop.IOLoop.current().run_in_executor(None,self.find_next_word, command[1]["letters"])
         else:
             print( "Received command " + command[0] )
         

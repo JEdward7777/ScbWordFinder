@@ -88,7 +88,12 @@ function sketchProc(processing) {
                 if( played_spaces[y][x] != "" ){
                     p.fill(255);
                     p.rect((x+.1)/size*(p.width-2)+1, (y+.1)/size*(p.height-2)+1, .8/size*(p.width-2), .8/size*(p.height-2), 7);
-                    p.fill(0, 102, 153);
+                    if( played_spaces[y][x].toUpperCase() == played_spaces[y][x] ){
+                        //This is actually a blank
+                        p.fill(0, 255, 255);
+                    }else{    
+                        p.fill(0, 102, 153);
+                    }
                     p.text( played_spaces[y][x].toUpperCase(), (x+.5)/size*(p.width-2), (y+.5)/size*(p.width-2) ); 
                 }
             }
@@ -114,7 +119,12 @@ function sketchProc(processing) {
         }
         p.fill(155);
         p.rect((x+.1)/size*(p.width-2)+1, (y+.1)/size*(p.height-2)+1, .8/size*(p.width-2), .8/size*(p.height-2), 7);
-        p.fill(0, 102, 153);
+        if( word_to_play[i].toUpperCase() == word_to_play[i] ){
+            //This is actually a blank
+            p.fill(0, 255, 255);
+        }else{    
+            p.fill(0, 102, 153);
+        }
         p.text( word_to_play[i].toUpperCase(), (x+.5)/size*(p.width-2), (y+.5)/size*(p.width-2) ); 
     }
 
@@ -129,8 +139,13 @@ function sketchProc(processing) {
         }
         p.fill(0, 204, 255);
         p.rect((x+.1)/size*(p.width-2)+1, (y+.1)/size*(p.height-2)+1, .8/size*(p.width-2), .8/size*(p.height-2), 7);
-        p.fill(0, 102, 153);
-        p.text( preview_word.word.toUpperCase()[i], (x+.5)/size*(p.width-2), (y+.5)/size*(p.width-2) );        
+        if( preview_word.word[i].toUpperCase() == preview_word.word[i] ){
+            //This is actually a blank
+            p.fill(0, 255, 255);
+        }else{    
+            p.fill(0, 102, 153);
+        }
+        p.text( preview_word.word[i].toUpperCase(), (x+.5)/size*(p.width-2), (y+.5)/size*(p.width-2) );        
     }
 
    };
@@ -179,9 +194,9 @@ function find_word(){
 function play_word( word ){
     preview_word = null;
     ws.send( JSON.stringify( ["play_word", word ] ) );
-    found_words_div = document.getElementById("found_words_div");
-    found_words_div.innerHTML = "";
-    found_words = [];
+    // found_words_div = document.getElementById("found_words_div");
+    // found_words_div.innerHTML = "";
+    // found_words = [];
 }
 function show_word( word ){
     preview_word = word;

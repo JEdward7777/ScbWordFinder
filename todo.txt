@@ -1,6 +1,9 @@
 Make blanks work
+Support bingo
 Make interface not sensitive to capital letters
 Make it give points and definitions for played words.
 Give a button for restarting
 Make the websockets leanient on origin.
 Add a check word field
+Make points attributedable
+Make starting location a double word.
