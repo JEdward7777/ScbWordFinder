@@ -6,14 +6,30 @@ except:
 RIGHT = 0
 DOWN = 1
 
+import time, random
+
 words = set()
 with open( "words.txt", "r" ) as words_file:
     for word in words_file:
         words.add(word.strip())
 
-def is_word( word ):
-    word_upper = word.upper()
-    return word_upper in words
+def is_word( word, letter_options, blank_index=0 ):
+    if "_" in word:
+        if blank_index >= len( letter_options ):
+            letter_options.append( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" )
+        if letter_options[blank_index] == "": return False
+        working_letters = ""
+        for test_letter in letter_options[blank_index]:
+            test_word = word.replace( "_", test_letter, 1 )
+            if is_word( test_word, letter_options, blank_index+1 ):
+                working_letters += test_letter
+        letter_options[blank_index] = working_letters
+        if len( working_letters ) > 0:
+            return True
+        else:
+            return False
+    else:
+        return  word.upper() in words
 
 class Board:
     size = 15
@@ -138,21 +154,10 @@ class Board:
                                 pass     
             elif len( picked_letters ) < length_test:
                 for letter_num in range( len( remaining_letters ) ):
-                    
+                    new_picked_letters = picked_letters + remaining_letters[letter_num]
                     new_remaining_letters = remaining_letters[:letter_num] + remaining_letters[letter_num+1:]
-                    new_picked_letter = remaining_letters[letter_num]
-                    if new_picked_letter != "_":
-                        new_picked_letters = picked_letters + new_picked_letter
-                        for result in combo_letters( new_picked_letters, new_remaining_letters, length_test ):
-                            yield result
-                    else:
-                        #capital means it is a blank.
-                        for blank_replacement in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-                            #don't try a blank as something you have the real letter for.
-                            if blank_replacement.lower() not in new_remaining_letters:
-                                new_picked_letters = picked_letters + blank_replacement
-                                for result in combo_letters( new_picked_letters, new_remaining_letters, length_test ):
-                                    yield result
+                    for result in combo_letters( new_picked_letters, new_remaining_letters, length_test ):
+                        yield result
 
         for length_test in range( 1, len( letters )+1 ):
             for result in combo_letters( "", letters, length_test ):
@@ -184,6 +189,9 @@ class Board:
         test_board = np.copy( self.played_spaces )
 
         x_0,y_0 = int(x+((self.size-1)*.5)),int(y+((self.size-1)*.5))
+
+        #keep track of what letters will work for any blanks.
+        valid_blank_choices = []
         
 
         #check if the letters will phisically fit
@@ -278,7 +286,7 @@ class Board:
         total_word_score += this_word_score * word_multiple
 
 
-        if not is_word( constructed_main_word ): raise Exception( "Not a word " + constructed_main_word )
+        if not is_word( constructed_main_word, valid_blank_choices ): raise Exception( "Not a word " + constructed_main_word )
 
         #now check all the side words
         root_walker_x,root_walker_y=x_0,y_0
@@ -353,7 +361,7 @@ class Board:
 
                     #take spir words seriously only if they are longer then one letter.
                     if len( constructed_spir_word ) > 1:
-                        if not is_word( constructed_spir_word ): raise Exception( "Not a word " + constructed_spir_word )
+                        if not is_word( constructed_spir_word, valid_blank_choices ): raise Exception( "Not a word " + constructed_spir_word )
                         
                         total_word_score += this_word_score * word_multiple
         
@@ -362,7 +370,31 @@ class Board:
         if not is_connected_to_something: raise Exception( "Not connected" )
 
         #TODO: find a way to mark a bingo.
-        #TODO: deal with spaces.
+        
+    
+        blank_choice_index = 0
+        while "_" in constructed_main_word:
+
+            if constructed_main_word == "dog__":
+                print( "What did this do?")
+            #What are the valid letters for the blank_choice_index'th blank
+            valid_letters = valid_blank_choices[blank_choice_index]
+            #randomly pick from the valid letters for that blank
+            chosen_letter = random.choice( valid_letters )
+            #figure out how far into the word the offset is
+            letter_offset = constructed_main_word.index("_")
+
+            #figure out where in the test_board that offset goes
+            replace_x, replace_y = x_0, y_0
+            if direction==RIGHT:
+                replace_x += letter_offset
+            else:
+                replace_y += letter_offset
+            test_board[replace_y,replace_x] = chosen_letter
+            constructed_main_word = constructed_main_word.replace( "_", chosen_letter, 1 )
+
+            blank_choice_index += 1
+
 
         return total_word_score, test_board, constructed_main_word
 
