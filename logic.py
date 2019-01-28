@@ -11,25 +11,73 @@ import time, random
 words = set()
 with open( "words.txt", "r" ) as words_file:
     for word in words_file:
-        words.add(word.strip())
+        words.add(word.strip().upper())
 
-def is_word( word, letter_options, blank_index=0 ):
-    if "_" in word:
-        if blank_index >= len( letter_options ):
-            letter_options.append( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" )
-        if letter_options[blank_index] == "": return False
-        working_letters = ""
-        for test_letter in letter_options[blank_index]:
-            test_word = word.replace( "_", test_letter, 1 )
-            if is_word( test_word, letter_options, blank_index+1 ):
-                working_letters += test_letter
-        letter_options[blank_index] = working_letters
-        if len( working_letters ) > 0:
-            return True
-        else:
-            return False
+blank_cache = {}
+
+def is_word2( word, letter_options, is_main_word, blank_index ):
+    if len( word ) < 2: return False
+    if "_" in word:            
+        num_blanks = word.count("_")
+        if is_main_word:
+            letter_options.clear()
+            if word in blank_cache:
+                letter_options.extend( blank_cache[word] )
+                return len( letter_options ) > 0
+
+            def recursive_add( sub_string ):
+                if len( sub_string ) < num_blanks:
+                    for new_letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                        recursive_add( sub_string + new_letter )
+                else:
+                    letter_options.append( sub_string )
+            recursive_add( "" )
+
+        i = 0
+        while i < len(letter_options):
+            test_word = word
+            if is_main_word:
+                for test_letter in letter_options[i]:
+                    test_word = test_word.replace( "_", test_letter, 1 )
+            else:
+                test_letter = letter_options[i][blank_index]
+                test_word = test_word.replace( "_", test_letter, 1 )
+
+            if test_word.upper() in words:
+                i += 1
+            else:
+                del letter_options[i]
+
+        #only the main word is cached because it doesn't depend on a main
+        #word's sub selection of letters.
+        if is_main_word:
+            blank_cache[word] = letter_options
+
+        return len( letter_options ) > 0 
     else:
         return  word.upper() in words
+
+
+        
+        
+
+# def is_word( word, letter_options, blank_index=0 ):
+#     if "_" in word:
+#         if blank_index >= len( letter_options ):
+#             letter_options.append( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" )
+#         if letter_options[blank_index] == "": return False
+#         working_letters = ""
+#         for test_letter in letter_options[blank_index]:
+#             test_word = word.replace( "_", test_letter, 1 )
+#             if is_word( test_word, letter_options, blank_index+1 ):
+#                 working_letters += test_letter
+#         letter_options[blank_index] = working_letters
+#         if len( working_letters ) > 0:
+#             return True
+#         else:
+#             return False
+#     else:
+#         return  word.upper() in words
 
 class Board:
     size = 15
@@ -150,6 +198,10 @@ class Board:
                                     yield ["found_word", { "word": test_word, "x": x, "y": y, "direction": direction, "points":test_score  } ]
                                     yield ["log_message", "Found word " + test_word + " at " + str( x ) + "," + str( y ) + " going " + ("down" if direction == DOWN else "right" ) + " for " + str( test_score ) + " points" ] 
                                     best_score[0] = test_score
+
+                                # if "_" in picked_letters:
+                                #     print( "Found _ word " + test_word + " at " + str( x ) + "," + str( y ) + " going " + ("down" if direction == DOWN else "right" ) + " for " + str( test_score ) + " points" )
+
                             except:
                                 pass     
             elif len( picked_letters ) < length_test:
@@ -286,12 +338,13 @@ class Board:
         total_word_score += this_word_score * word_multiple
 
 
-        if not is_word( constructed_main_word, valid_blank_choices ): raise Exception( "Not a word " + constructed_main_word )
+        if not is_word2( constructed_main_word, valid_blank_choices, True, -1 ): raise Exception( "Not a word " + constructed_main_word )
 
         #now check all the side words
         root_walker_x,root_walker_y=x_0,y_0
         still_walking_root = True
         first_root_letter = True
+        root_walk_blank_count = -1
         while still_walking_root:
             if first_root_letter:
                 first_root_letter = False
@@ -305,6 +358,9 @@ class Board:
             else:
                 #only check spirs if the letter placed is ours.
                 if self.played_spaces[root_walker_y,root_walker_x] == "":
+
+                    #keep track of which blank is appart of a possible spir word.
+                    if test_board[root_walker_y,root_walker_x] == "_": root_walk_blank_count += 1
 
                     #check for spirs.
                     start_x,start_y=root_walker_x,root_walker_y
@@ -361,7 +417,7 @@ class Board:
 
                     #take spir words seriously only if they are longer then one letter.
                     if len( constructed_spir_word ) > 1:
-                        if not is_word( constructed_spir_word, valid_blank_choices ): raise Exception( "Not a word " + constructed_spir_word )
+                        if not is_word2( constructed_spir_word, valid_blank_choices, False, root_walk_blank_count ): raise Exception( "Not a word " + constructed_spir_word )
                         
                         total_word_score += this_word_score * word_multiple
         
@@ -372,15 +428,15 @@ class Board:
         #TODO: find a way to mark a bingo.
         
     
+        if "_" in constructed_main_word:
+            chosen_valid_letters = random.choice( valid_blank_choices )
+
         blank_choice_index = 0
         while "_" in constructed_main_word:
-
-            if constructed_main_word == "dog__":
-                print( "What did this do?")
-            #What are the valid letters for the blank_choice_index'th blank
-            valid_letters = valid_blank_choices[blank_choice_index]
-            #randomly pick from the valid letters for that blank
-            chosen_letter = random.choice( valid_letters )
+            # if constructed_main_word == "dog__":
+            #     print( "What did this do?")
+            #pick the letter from the randomly chosen valid letters
+            chosen_letter = chosen_valid_letters[blank_choice_index]
             #figure out how far into the word the offset is
             letter_offset = constructed_main_word.index("_")
 
@@ -489,8 +545,9 @@ def main():
     # b.find_word( "ulmtpan")
 
     #b.play_word( "fish", 0, 0, RIGHT )
-    b.find_word( "Potato_" )
+    #b.find_word( "dog___" )
     #b.play_word( "fish", 3, -3, DOWN )
+    b.find_word( "tr_lv_l" )
 
 if __name__ == "__main__":
     main()
