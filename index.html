@@ -198,6 +198,10 @@ function play_word( word ){
     // found_words_div.innerHTML = "";
     // found_words = [];
 }
+function clear_board(){
+    preview_word = null;
+    ws.send( JSON.stringify( ["clear_board"] ) );
+}
 function show_word( word ){
     preview_word = word;
 }
@@ -213,9 +217,9 @@ Down: <input id="down_check" type="checkbox" value="Down"><br>
 <h1>Find words</h1>
 letters: <input id="letters" type="text"><br>
 <button onclick="find_word()">go</button> 
-<div id="found_words_div">
-
-</div>
+<div id="found_words_div"></div>
+<hr>
+<button onclick="clear_board()">clear board</button>
 <hr>
 <div id="log_div">
 

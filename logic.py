@@ -130,11 +130,16 @@ class Board:
     }
 
     scores = None
+    played_spaces = None
 
     def __init__ (self ):
-        self.scores = {}
+        self.clear_board()
 
-    played_spaces = np.asarray([[""]*size]*size)
+    def clear_board( self ):
+        self.scores = {}
+        self.played_spaces = np.asarray([[""]*self.size]*self.size)
+
+
 
     def get_played_spaces( self ):
         return self.played_spaces.tolist()

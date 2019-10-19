@@ -74,6 +74,10 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
             while finding_result is not None:
                 self.write_message( json.dumps( finding_result ) )
                 finding_result = await tornado.ioloop.IOLoop.current().run_in_executor(None,self.find_next_word, command[1]["letters"])
+        elif command[0] == "clear_board":
+            b.clear_board()
+            for c in cl:
+                c.write_message( json.dumps( [ "played_spaces",  b.get_played_spaces() ] ) )
         else:
             print( "Received command " + command[0] )
         
