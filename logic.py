@@ -260,6 +260,8 @@ class Board:
                         for y in range( y_start, y_end+1 ):
                             try:
                                 test_score, _, test_word = self.test_word( picked_letters, x, y, direction, skipy=True )
+                                if len( picked_letters ) == 7:
+                                    test_score += 50
                                 
                                 if test_score > best_score[0]:
                                     print( "Found word " + test_word + " at " + str( x ) + "," + str( y ) + " going " + ("down" if direction == DOWN else "right" ) + " for " + str( test_score ) + " points" )
@@ -297,6 +299,7 @@ class Board:
     def play_word( self, word, x,y, direction, who="", skipy=False, speak=True ):
         self.word_finder = None
         score, self.played_spaces, constructed_main_word = self.test_word( word, x, y, direction, skipy )
+        if len( word ) == 7: score += 50
         if not who in self.scores:
             self.scores[who] = 0
         self.scores[who] += score
