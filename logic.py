@@ -260,8 +260,6 @@ class Board:
                         for y in range( y_start, y_end+1 ):
                             try:
                                 test_score, _, test_word = self.test_word( picked_letters, x, y, direction, skipy=True )
-                                if len( picked_letters ) == 7:
-                                    test_score += 50
                                 
                                 if test_score > best_score[0]:
                                     print( "Found word " + test_word + " at " + str( x ) + "," + str( y ) + " going " + ("down" if direction == DOWN else "right" ) + " for " + str( test_score ) + " points" )
@@ -299,7 +297,6 @@ class Board:
     def play_word( self, word, x,y, direction, who="", skipy=False, speak=True ):
         self.word_finder = None
         score, self.played_spaces, constructed_main_word = self.test_word( word, x, y, direction, skipy )
-        if len( word ) == 7: score += 50
         if not who in self.scores:
             self.scores[who] = 0
         self.scores[who] += score
@@ -316,6 +313,8 @@ class Board:
         #keep track of what letters will work for any blanks.
         valid_blank_choices = []
         
+        #keep track of how many leters are actually placed if we are not using skipy mode.
+        placed_letters = 0
 
         #check if the letters will phisically fit
         strech_num = 0
@@ -341,12 +340,14 @@ class Board:
 
             if occupied and test_board[test_y,test_x] != letter:
                 raise Exception( "Occupied" )
+            
+            
+            if not occupied:
+                placed_letters += 1
 
             #place the letter
             test_board[test_y,test_x] = letter
             strech_num += 1
-            
-
 
         #check if all the words made are words
         #first check inline word.
@@ -368,6 +369,10 @@ class Board:
         total_word_score = 0
         this_word_score = 0
         word_multiple = 1
+
+        #if seven letters were placed then we get a bingo.
+        if placed_letters >= 7:
+            total_word_score += 50
 
         constructed_main_word = ""
         walking_x,walking_y=start_x,start_y
@@ -495,8 +500,6 @@ class Board:
 
         #check that the word connects or touches the start
         if not is_connected_to_something: raise Exception( "Not connected" )
-
-        #TODO: find a way to mark a bingo.
         
     
         if "_" in constructed_main_word:
