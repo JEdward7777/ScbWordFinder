@@ -122,13 +122,13 @@ class Board:
       [\
       ["tl",""  ,"tw",""  ,""  ,""  ,""  ,""  ,"tw",""  ,"tl"],
       [""  ,"dw",""  ,""  ,""  ,"dw",""  ,""  ,""  ,"dw",""  ],
-      ["tw",""  ,"dl",""  ,"dl",""  ,"dl",""  ,"dl",""  ,"tw"],
+      ["tw",""  ,"tl",""  ,"dl",""  ,"dl",""  ,"tl",""  ,"tw"],
       [""  ,""  ,""  ,"tl",""  ,""  ,""  ,"tl",""  ,""  ,""  ],
       [""  ,""  ,"dl",""  ,""  ,""  ,""  ,""  ,"dl",""  ,""  ],
       [""  ,"dw",""  ,""  ,""  ,"s" ,""  ,""  ,""  ,"dw",""  ],
       [""  ,""  ,"dl",""  ,""  ,""  ,""  ,""  ,"dl",""  ,""  ],
       [""  ,""  ,""  ,"tl",""  ,""  ,""  ,"tl",""  ,""  ,""  ],
-      ["tw",""  ,"dl",""  ,"dl",""  ,"dl",""  ,"dl",""  ,"tw"],
+      ["tw",""  ,"tl",""  ,"dl",""  ,"dl",""  ,"tl",""  ,"tw"],
       [""  ,"dw",""  ,""  ,""  ,"dw",""  ,""  ,""  ,"dw",""  ],
       ["tl",""  ,"tw",""  ,""  ,""  ,""  ,""  ,"tw",""  ,"tl"]])
       
@@ -263,6 +263,7 @@ class Board:
                                 
                                 if test_score > best_score[0]:
                                     print( "Found word " + test_word + " at " + str( x ) + "," + str( y ) + " going " + ("down" if direction == DOWN else "right" ) + " for " + str( test_score ) + " points" )
+                                    print( "b.play_word( \"" + test_word + "\"," + str( x ) + "," + str( y ) + "," + ("DOWN" if direction == DOWN else "RIGHT" ) + ",  \"\"  )" )
                                     yield ["found_word", { "word": test_word, "x": x, "y": y, "direction": direction, "points":test_score  } ]
                                     yield ["log_message", "Found word " + test_word + " at " + str( x ) + "," + str( y ) + " going " + ("down" if direction == DOWN else "right" ) + " for " + str( test_score ) + " points" ] 
                                     best_score[0] = test_score
@@ -372,7 +373,7 @@ class Board:
 
         #if seven letters were placed then we get a bingo.
         if placed_letters >= 7:
-            total_word_score += 50
+            total_word_score += 35 if wds_w_fr else 50
 
         constructed_main_word = ""
         walking_x,walking_y=start_x,start_y
@@ -409,6 +410,9 @@ class Board:
                     elif this_special == "tw":
                         word_multiple *= 3
                     elif this_special == "s":
+                        #TODO:  I think with non words with friends
+                        #This should make a word_multiple *2 as well
+                        #but I want to research before doing it.
                         is_connected_to_something = True
                 this_word_score += this_letter_score
         total_word_score += this_word_score * word_multiple
@@ -621,7 +625,65 @@ def main():
     #b.play_word( "fish", 0, 0, RIGHT )
     #b.find_word( "dog___" )
     #b.play_word( "fish", 3, -3, DOWN )
-    b.find_word( "tr_lv_l" )
+
+    # b.play_word( "dowser",-5,  0, RIGHT, "comp"  )
+    # b.play_word( "band",  -5, -3, DOWN,  "Dad F" )
+    # b.play_word( "reavow",-3, -5, DOWN,  "comp"  )
+    # b.play_word( "jeton", -4, -4, RIGHT, "Dad F" )
+    # b.play_word( "xenIc", -1, -3, RIGHT, "comp"  )
+    # b.play_word( "muck",   3, -5, DOWN,  "Dad F" )
+    # b.play_word( "bandiest",-5,-3,DOWN,  "comp"  )
+    # b.play_word( "preload",0, -1, DOWN,  "Dad F" )
+    # b.play_word( "quiz",   2, -4, RIGHT, "comp"  )
+    # b.play_word( "zas",    5, -4, DOWN,  "Dad F" )
+    # b.play_word( "deafly", 0,  5, RIGHT, "comp"  )
+    # b.play_word( "phis",   0, -1, RIGHT, "Dad F" )
+    # b.play_word( "gox",   -1, -5, DOWN,  "comp"  )
+    # b.find_word( "g" )
+ 
+    # b.play_word( "word",    0, 0, RIGHT, "aibot"  )
+    # b.play_word( "starves",-5, 1, RIGHT, "comp"   )
+    # b.play_word( "lot",    -4,-1, DOWN,  "aibot"  )
+    # b.play_word( "emeus",   4,-4, DOWN,  "comp"   )
+    # b.play_word( "vis",    -1, 1, DOWN,  "aibot"  )
+    # b.play_word( "koine",  -5,-5, DOWN,  "comp"   )
+    # b.play_word( "hear",    2,-3, DOWN,  "aibot"  )
+    # b.play_word( "axal",    5,-5, DOWN,  "comp"   )
+    # b.play_word( "dif",     3, 0, DOWN,  "aibot"  )
+    # b.play_word( "objEct", -4, 4, RIGHT, "comp"   )
+    # b.play_word( "gee",    -5, 5, RIGHT, "aibot"  )
+    # b.play_word( "knap",   -5,-5, RIGHT, "comp"   )
+    # b.play_word( "Fiz",     3, 3, RIGHT, "aibot"  )
+    # b.play_word( "dex",     3,-4, RIGHT, "comp"   )
+    # b.play_word( "oy",     -4, 0, RIGHT, "comp"   )
+    # b.find_word( "y" )
+
+    
+    # b.play_word( "zAyin",   -4,  0, RIGHT, "comp"  )
+    # b.play_word( "mode",    -3, -1, RIGHT, "Dad F" )
+    # b.play_word( "mAnager", -3, -1, DOWN,  "comp"  )
+    # b.play_word( "kugels",  -5,  3, RIGHT, "Dad F" )
+    # b.play_word( "racHises",-3,  5, RIGHT, "comp"  )
+    # b.play_word( "qadi",    -1, -3, DOWN,  "Dad F" )
+    # b.play_word( "hoaxes",   4,  0, DOWN,  "comp"  )
+    # b.play_word( "bawd",    -2, -2, RIGHT, "Dad F" )
+    # b.play_word( "rei",      5,  1, DOWN,  "comp"  )
+    # b.play_word( "jota",     3, -3, DOWN,  "Dad F" )
+    # b.find_word( "lfovei" )
+
+    b.play_word( "hawks",-4, 0,RIGHT,"comp" )
+    b.play_word( "taj",  -5,-1,RIGHT,"Dad F")
+    b.play_word( "exist",-5,-5,DOWN, "comp" )
+    b.play_word( "mis",  -4,-5,DOWN, "Dad F")
+    b.play_word( "dare", -5, 1,RIGHT,"comp" )
+    b.play_word( "doby", -5, 1,DOWN, "Dad F")
+    b.play_word( "lev",  -3, 2,RIGHT,"comp" )
+    b.play_word( "os",   -3,-5,DOWN, "Dad F")
+    b.play_word( "sparid",0, 0,DOWN, "comp" )
+    b.play_word( "dozen", 0,5,RIGHT, "Dad F")
+    b.play_word( "requin",0,3,RIGHT, "comp" )
+    b.find_word( "fanes", 5,1,DOWN,  "Dad F")
+    b.find_word( "elgo" )
 
 if __name__ == "__main__":
     main()
