@@ -304,6 +304,13 @@ class Board:
         if speak:
             print( "Scored " + str(score) + " points for word " + constructed_main_word + " for a total of " + str(self.scores[who]) + " for " + who )
         return score, constructed_main_word
+    
+    def adjust_score( self, amount, who, speak=True ):
+        if not who in self.scores:
+            self.scores[who] = 0
+        self.scores[who] += amount
+        if speak:
+            print( "Adjusted " + who + " " + str(amount) + " points to " + str(self.scores[who]) )
 
     def test_word( self, word, x, y, direction, skipy ):
 
@@ -532,7 +539,7 @@ class Board:
 
         return total_word_score, test_board, constructed_main_word
 
-
+#TODO: need to implement BINGOs.
 def main():
     b = Board()
     # b.play_word( "dog", 0, 0, RIGHT )
