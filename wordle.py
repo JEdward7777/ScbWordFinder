@@ -1,5 +1,6 @@
-
-import random
+#Perhaps I can expose this using xtermjs with the xterm-addon-attach addon.
+#https://github.com/xtermjs/xterm.js/tree/master/addons/xterm-addon-attach
+import random,sys
 
 max_length = 5
 
@@ -123,8 +124,15 @@ def main():
                 print( word )
 
 
+def webapp_main():
+    import pyxtermjs.app
+    sys.argv = [ sys.argv[0], "--command", "python", "--cmd-args",  "wordle.py run" ]
+    pyxtermjs.app.main()
 
-
-
-if __name__ == '__main__': main()
+#if __name__ == '__main__': main()
+if __name__ == '__main__':
+    if sys.argv[-1] == "run":
+        main()
+    else:
+        webapp_main()
         
